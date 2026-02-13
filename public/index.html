@@ -6,12 +6,7 @@
 <title>NovaChat</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
 
 body{
   height:100vh;
@@ -47,7 +42,6 @@ body{
   text-align:center;
   font-size:20px;
   color:white;
-  letter-spacing:1px;
   background:rgba(0,0,0,0.2);
 }
 
@@ -83,7 +77,6 @@ body{
   align-self:flex-start;
   background:rgba(255,255,255,0.15);
   color:white;
-  backdrop-filter:blur(5px);
 }
 
 .input-area{
@@ -113,10 +106,6 @@ body{
   font-weight:bold;
   transition:0.3s;
 }
-
-.input-area button:hover{
-  transform:scale(1.1);
-}
 </style>
 </head>
 <body>
@@ -131,18 +120,30 @@ body{
   </div>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
+const socket = io();
+let myId = null;
+
+socket.on("connect", ()=>{
+  myId = socket.id;
+});
+
 function sendMessage(){
   const input = document.getElementById("msgInput");
   if(input.value.trim()==="") return;
 
-  const div = document.createElement("div");
-  div.classList.add("message","me");
-  div.textContent = input.value;
-
-  document.getElementById("messages").appendChild(div);
+  socket.emit("message", input.value);
   input.value="";
 }
+
+socket.on("message", (data)=>{
+  const div = document.createElement("div");
+  div.classList.add("message");
+  div.classList.add(data.id === myId ? "me" : "other");
+  div.textContent = data.text;
+  document.getElementById("messages").appendChild(div);
+});
 </script>
 
 </body>
