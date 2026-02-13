@@ -3,141 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Tiempo Real</title>
+<title>NovaChat</title>
 
 <style>
-body{
+*{
   margin:0;
-  font-family:Arial;
-  background:#e4e6eb;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43);
+  background-size:400% 400%;
+  animation: gradientBG 12s ease infinite;
 }
 
-.container{
+@keyframes gradientBG {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.chat-container{
   width:380px;
   height:650px;
-  background:white;
-  border-radius:15px;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.08);
+  border-radius:25px;
+  border:1px solid rgba(255,255,255,0.2);
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  box-shadow:0 20px 40px rgba(0,0,0,0.4);
 }
 
 .header{
-  background:#0084ff;
-  color:white;
-  padding:15px;
+  padding:20px;
   text-align:center;
-  font-weight:bold;
+  font-size:20px;
+  color:white;
+  letter-spacing:1px;
+  background:rgba(0,0,0,0.2);
 }
 
 .messages{
   flex:1;
-  padding:10px;
+  padding:15px;
   overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .message{
-  margin:5px 0;
-  padding:8px 12px;
-  border-radius:15px;
+  padding:12px 16px;
+  border-radius:20px;
   max-width:75%;
+  font-size:14px;
+  animation:fadeIn .3s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
 .me{
-  background:#0084ff;
-  color:white;
-  margin-left:auto;
+  align-self:flex-end;
+  background:linear-gradient(135deg,#00f5a0,#00d9f5);
+  color:#000;
 }
 
 .other{
-  background:#f0f0f0;
+  align-self:flex-start;
+  background:rgba(255,255,255,0.15);
+  color:white;
+  backdrop-filter:blur(5px);
 }
 
 .input-area{
   display:flex;
-  padding:10px;
-  border-top:1px solid #ddd;
+  padding:15px;
+  gap:10px;
+  background:rgba(0,0,0,0.2);
 }
 
-input{
+.input-area input{
   flex:1;
-  padding:8px;
-  border-radius:20px;
-  border:1px solid #ccc;
-}
-
-button{
-  background:#0084ff;
-  color:white;
+  padding:10px;
+  border-radius:30px;
   border:none;
-  padding:8px 12px;
-  border-radius:20px;
-  margin-left:5px;
+  outline:none;
+  background:rgba(255,255,255,0.2);
+  color:white;
 }
 
-#loginScreen{
-  position:absolute;
-  background:white;
-  width:380px;
-  height:650px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
+.input-area button{
+  padding:10px 15px;
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  background:linear-gradient(135deg,#00f5a0,#00d9f5);
+  color:black;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.input-area button:hover{
+  transform:scale(1.1);
 }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="chat-container">
+  <div class="header">🚀 NovaChat</div>
+  <div class="messages" id="messages"></div>
 
-<div id="loginScreen">
-  <h2>Iniciar Sesión</h2>
-  <input type="text" id="username" placeholder="Tu nombre">
-  <button onclick="login()">Entrar</button>
+  <div class="input-area">
+    <input type="text" id="msgInput" placeholder="Escribe algo...">
+    <button onclick="sendMessage()">➤</button>
+  </div>
 </div>
 
-<div class="header">Chat en Vivo</div>
-<div class="messages" id="messages"></div>
-
-<div class="input-area">
-  <input type="text" id="msgInput" placeholder="Escribe...">
-  <button onclick="sendMessage()">Enviar</button>
-</div>
-
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
-let myName = "";
-
-function login(){
-  myName = document.getElementById("username").value.trim();
-  if(myName === "") return;
-  socket.emit("login", myName);
-  document.getElementById("loginScreen").style.display = "none";
-}
-
 function sendMessage(){
   const input = document.getElementById("msgInput");
-  if(input.value.trim() === "") return;
-  socket.emit("message", input.value);
-  input.value = "";
-}
+  if(input.value.trim()==="") return;
 
-socket.on("message", (data)=>{
   const div = document.createElement("div");
-  div.classList.add("message");
-  div.classList.add(data.user === myName ? "me" : "other");
-  div.textContent = data.user + ": " + data.text;
+  div.classList.add("message","me");
+  div.textContent = input.value;
+
   document.getElementById("messages").appendChild(div);
-});
+  input.value="";
+}
 </script>
 
 </body>
